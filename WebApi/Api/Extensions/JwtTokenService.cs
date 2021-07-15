@@ -8,7 +8,7 @@ using System.Text;
 namespace Api.Extensions
 {
 
-    public static class JwtTokenConfig
+    public static class JwtTokenService
     {
 
         public static IServiceCollection AddJwtTokenAuthentication(this IServiceCollection services, IConfiguration configuration)

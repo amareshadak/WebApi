@@ -1,4 +1,4 @@
-﻿using Api.Data;
+﻿using Api.Core.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +39,7 @@ namespace Api.Controllers
             var getUser = _userManager.GetUserAsync(currentUser);
 
             var id = User.FindFirst(ClaimTypes.PrimarySid)?.Value;
-            var currentUserBy =await _userManager.FindByIdAsync(id);
+            var currentUserBy = await _userManager.FindByIdAsync(id);
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

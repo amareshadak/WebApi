@@ -1,4 +1,4 @@
-﻿using Api.Data;
+﻿using Api.Core.Domain;
 using Api.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

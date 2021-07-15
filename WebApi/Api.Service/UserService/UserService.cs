@@ -1,10 +1,7 @@
-﻿using Api.Data;
+﻿using Api.Core.Domain;
 using Api.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Api.Service

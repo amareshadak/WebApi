@@ -1,4 +1,5 @@
-﻿using Api.Data;
+﻿using Api.Core.Domain;
+using Api.Helper;
 using Api.Model;
 using Api.Service;
 using Microsoft.AspNetCore.Http;
@@ -86,27 +87,41 @@ namespace Api.Controllers
             };
             var result = await userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+            {
+                string errorStr = string.Empty;
+                foreach (var error in result.Errors)
+                {
+                    if (string.IsNullOrEmpty(errorStr))
+                    {
+                        errorStr = error.Description;
+                    }
+                    else
+                    {
+                        errorStr += "\n " + error.Description;
+                    }
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = errorStr });
+            }
 
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
-        [HttpPost]
-        [Route("user")]
-        public async Task<IActionResult> GetUser()
-        {
-            try
-            {
-                var user = await _unitOfWork.Book.GetAll();
-                return Ok(user);
-            }
-            catch (Exception)
-            {
+        //[HttpPost]
+        //[Route("user")]
+        //public async Task<IActionResult> GetUser()
+        //{
+        //    try
+        //    {
+        //        var user = await _unitOfWork.User.GetAll();
+        //        return Ok(user);
+        //    }
+        //    catch (Exception)
+        //    {
 
-                throw;
-            }
+        //        throw;
+        //    }
             
-        }
+        //}
 
     }
 }

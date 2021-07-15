@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
-using Api.Data;
+using Api.Core.Domain;
 
 namespace Api.Helper
 {

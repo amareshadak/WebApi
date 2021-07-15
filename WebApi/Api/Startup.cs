@@ -1,23 +1,13 @@
-using Api.Configure;
-using Api.Data;
-using Api.Data.Context;
 using Api.Extensions;
-using Api.Service;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Security.Principal;
-using System.Text;
 
 namespace Api
 {
@@ -27,46 +17,18 @@ namespace Api
         {
             Configuration = configuration;
         }
-
+        
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
             services.AddControllers();
-
-            // Adding Api Versioning
-            services.AddApiVersioning(x =>
-            {
-                x.DefaultApiVersion = new ApiVersion(1, 0);
-                x.AssumeDefaultVersionWhenUnspecified = true;
-                x.ReportApiVersions = true;
-            });
-
-            services.AddVersionedApiExplorer(setup =>
-            {
-                setup.GroupNameFormat = "'v'VVV";
-                setup.SubstituteApiVersionInUrl = true;
-            });
-
-            services.AddSwaggerGen();
-            services.ConfigureOptions<ConfigureSwaggerOptions>();
-
-            // Adding Database Context
-            
+            services.AddApiVersion();
+            services.AddSwaggerUIGen();
             services.AddRepository(Configuration.GetConnectionString("ConnStr"));
-
-            // For Identity  
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<ApiContext>()
-                .AddDefaultTokenProviders();
-
-            // Adding Authentication  
+            services.AddIdentity();
             services.AddJwtTokenAuthentication(Configuration);
-
-
-
             services.AddHttpContextAccessor();
             services.AddTransient<IPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
 

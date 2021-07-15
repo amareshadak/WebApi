@@ -5,13 +5,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Api.Extensions
 {
-    public static class AddRepositoryConfig
+    public static class RepositoryService
     {
         public static IServiceCollection AddRepository(this IServiceCollection services, string connStr)
         {
             #region Other Service Dependency
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IBookService, BookService>();
+            services.AddTransient<IMemberService, MemberService>();
             #endregion
 
 

@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Api.Data
+namespace Api.Core.Domain
 {
     public class ApplicationUser : IdentityUser<long>
     {
@@ -11,11 +11,8 @@ namespace Api.Data
         [StringLength(100)]
         public string LastName { get; set; }
         public DateTime? Birthdate { get; set; }
-    }
-
-    public class ApplicationRole : IdentityRole<long>
-    {
-        [StringLength(200)]
-        public string Description { get; set; }
+        [StringLength(100)]
+        public string UserType { get; set; } // Admin or Company User or Member
+        public bool IsDeleted { get; set; } = false;
     }
 }
