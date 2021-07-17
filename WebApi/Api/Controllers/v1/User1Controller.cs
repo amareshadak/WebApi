@@ -37,7 +37,7 @@ namespace Api.Controllers.v1
 
         [Route("add")]
         [HttpPost]
-        public async Task<IActionResult> AddUser(MasterMember model)
+        public async Task<IActionResult> AddUser(AddUserViewModel model)
         {
             var userExists = await _userManager.FindByEmailAsync(model.EmailId);
             if (userExists != null)
@@ -73,8 +73,12 @@ namespace Api.Controllers.v1
             else
             {
                 var getuser = await _userManager.FindByEmailAsync(model.EmailId);
-                model.UserId = getuser.Id;
-                await AddMember(model);
+                var userModel = new MasterMember();
+                userModel.UserId = getuser.Id;
+                userModel.EmailId = model.EmailId;
+
+
+                await AddMember(userModel);
             }
 
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
