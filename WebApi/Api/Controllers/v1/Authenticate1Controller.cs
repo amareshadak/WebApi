@@ -43,8 +43,10 @@ namespace Api.Controllers
                 var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.PrimarySid, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
                 };
 
                 foreach (var userRole in userRoles)
@@ -68,7 +70,8 @@ namespace Api.Controllers
                     expiration = token.ValidTo
                 });
             }
-            return Unauthorized();
+            return StatusCode(StatusCodes.Status401Unauthorized, new Response { Status = "Error", Message = "Invalid username or password" });
+
         }
 
         [HttpPost]

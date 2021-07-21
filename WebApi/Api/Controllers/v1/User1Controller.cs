@@ -1,7 +1,7 @@
 ﻿using Api.Core.Domain;
 using Api.Model;
 using Api.Service;
-
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -21,18 +21,53 @@ namespace Api.Controllers.v1
     [Route("api/v{version:apiVersion}/user")]
     public class User1Controller : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        //private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<ApplicationUser> _userManager;
         public User1Controller(
             UserManager<ApplicationUser> userManager,
-            //IConfiguration configuration,
+            IMapper mapper,
             IUnitOfWork unitOfWork
             )
         {
             this._userManager = userManager;
-            //this._configuration = configuration;
+            this._mapper = mapper;
             this._unitOfWork = unitOfWork;
+        }
+
+        public static string GetRandomAlphanumericString(int length)
+        {
+            const string alphanumericCharacters =
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+                "abcdefghijklmnopqrstuvwxyz" +
+                "0123456789";
+            return GetRandomString(length, alphanumericCharacters);
+        }
+
+        public static string GetRandomString(int length, IEnumerable<char> characterSet)
+        {
+            if (length < 0)
+                throw new ArgumentException("length must not be negative", "length");
+            if (length > int.MaxValue / 8) // 250 million chars ought to be enough for anybody
+                throw new ArgumentException("length is too big", "length");
+            if (characterSet == null)
+                throw new ArgumentNullException("characterSet");
+            var characterArray = characterSet.Distinct().ToArray();
+            if (characterArray.Length == 0)
+                throw new ArgumentException("characterSet must not be empty", "characterSet");
+
+            var bytes = new byte[length * 8];
+            var result = new char[length];
+            using (var cryptoProvider = new RNGCryptoServiceProvider())
+            {
+                cryptoProvider.GetBytes(bytes);
+            }
+            for (int i = 0; i < length; i++)
+            {
+                ulong value = BitConverter.ToUInt64(bytes, i * 8);
+                result[i] = characterArray[value % (uint)characterArray.Length];
+            }
+            return new string(result);
         }
 
         [Route("add")]
@@ -73,7 +108,8 @@ namespace Api.Controllers.v1
             else
             {
                 var getuser = await _userManager.FindByEmailAsync(model.EmailId);
-                var userModel = new MasterMember();
+                var userModel = _mapper.Map<MasterMember>(model);
+                // var userModel = new MasterMember();
                 userModel.UserId = getuser.Id;
                 userModel.EmailId = model.EmailId;
 
@@ -82,6 +118,15 @@ namespace Api.Controllers.v1
             }
 
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+        }
+
+        [Route("profile")]
+        [HttpPost]
+        public async Task<IActionResult> Profile()
+        {
+            var id = User.FindFirst(ClaimTypes.PrimarySid)?.Value;
+            var currentUserBy = await _userManager.FindByIdAsync(id);
+            return Ok(currentUserBy);
         }
 
         private async Task<bool> AddMember(MasterMember model)
@@ -97,55 +142,6 @@ namespace Api.Controllers.v1
                 throw ex;
             }
             return true;
-        }
-
-
-
-
-
-        [Route("profile")]
-        [HttpPost]
-        public async Task<IActionResult> Profile()
-        {
-            var id = User.FindFirst(ClaimTypes.PrimarySid)?.Value;
-            var currentUserBy = await _userManager.FindByIdAsync(id);
-            return Ok(currentUserBy);
-        }
-
-
-        public static string GetRandomAlphanumericString(int length)
-        {
-            const string alphanumericCharacters =
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                "abcdefghijklmnopqrstuvwxyz" +
-                "0123456789";
-            return GetRandomString(length, alphanumericCharacters);
-        }
-
-        public static string GetRandomString(int length, IEnumerable<char> characterSet)
-        {
-            if (length < 0)
-                throw new ArgumentException("length must not be negative", "length");
-            if (length > int.MaxValue / 8) // 250 million chars ought to be enough for anybody
-                throw new ArgumentException("length is too big", "length");
-            if (characterSet == null)
-                throw new ArgumentNullException("characterSet");
-            var characterArray = characterSet.Distinct().ToArray();
-            if (characterArray.Length == 0)
-                throw new ArgumentException("characterSet must not be empty", "characterSet");
-
-            var bytes = new byte[length * 8];
-            var result = new char[length];
-            using (var cryptoProvider = new RNGCryptoServiceProvider())
-            {
-                cryptoProvider.GetBytes(bytes);
-            }
-            for (int i = 0; i < length; i++)
-            {
-                ulong value = BitConverter.ToUInt64(bytes, i * 8);
-                result[i] = characterArray[value % (uint)characterArray.Length];
-            }
-            return new string(result);
         }
     }
 }

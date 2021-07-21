@@ -19,10 +19,21 @@ namespace Api
         }
         
         public IConfiguration Configuration { get; }
+        private readonly string _policyName = "CorsPolicy";
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy(name: _policyName, builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
 
+            services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
             services.AddApiVersion();
             services.AddSwaggerUIGen();
@@ -62,7 +73,7 @@ namespace Api
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseCors(_policyName);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
