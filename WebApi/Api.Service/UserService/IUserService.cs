@@ -1,4 +1,5 @@
 ﻿using Api.Core.Domain;
+using Api.Data;
 
 namespace Api.Service
 {

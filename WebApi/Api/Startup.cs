@@ -2,11 +2,14 @@ using Api.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.IO;
+using System.Linq;
 using System.Security.Principal;
 
 namespace Api
@@ -17,7 +20,7 @@ namespace Api
         {
             Configuration = configuration;
         }
-        
+
         public IConfiguration Configuration { get; }
         private readonly string _policyName = "CorsPolicy";
 
@@ -42,6 +45,22 @@ namespace Api
             services.AddJwtTokenAuthentication(Configuration);
             services.AddHttpContextAccessor();
             services.AddTransient<IPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var errors = actionContext.ModelState
+                                  .Where(e => e.Value.Errors.Count > 0)
+                                  .Select(e => new
+                                  {
+                                      Name = e.Key,
+                                      Message = e.Value.Errors.First().ErrorMessage
+                                  }).ToArray();
+
+                    return new BadRequestObjectResult(errors);
+                };
+            });
 
 
         }

@@ -1,5 +1,5 @@
 ﻿using Api.Core.Domain;
-using Api.Data.Context;
+using Api.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 

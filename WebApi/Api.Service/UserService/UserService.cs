@@ -1,5 +1,5 @@
 ﻿using Api.Core.Domain;
-using Api.Data.Context;
+using Api.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;

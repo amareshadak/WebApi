@@ -1,4 +1,5 @@
 ﻿using Api.Core.Domain;
+using Api.Helper;
 using Api.Model;
 using Api.Service;
 using AutoMapper;
@@ -13,7 +14,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace Api.Controllers.v1
+namespace Api.Controllers
 {
     [Authorize]
     [ApiController]
@@ -74,50 +75,54 @@ namespace Api.Controllers.v1
         [HttpPost]
         public async Task<IActionResult> AddUser(AddUserViewModel model)
         {
-            var userExists = await _userManager.FindByEmailAsync(model.EmailId);
-            if (userExists != null)
+            if (ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
-            }
-
-            var username = GetRandomAlphanumericString(7);
-
-            ApplicationUser user = new ApplicationUser()
-            {
-                Email = model.EmailId,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = username
-            };
-            var result = await _userManager.CreateAsync(user, "Pass@123");
-            if (!result.Succeeded)
-            {
-                string errorStr = string.Empty;
-                foreach (var error in result.Errors)
+                var userExists = await _userManager.FindByEmailAsync(model.EmailId);
+                if (userExists != null)
                 {
-                    if (string.IsNullOrEmpty(errorStr))
-                    {
-                        errorStr = error.Description;
-                    }
-                    else
-                    {
-                        errorStr += "\n " + error.Description;
-                    }
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
                 }
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = errorStr });
+
+                var username = GetRandomAlphanumericString(7);
+
+                ApplicationUser user = new ApplicationUser()
+                {
+                    Email = model.EmailId,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    UserName = username
+                };
+                var result = await _userManager.CreateAsync(user, "Pass@123");
+                if (!result.Succeeded)
+                {
+                    var error = SerializedIdentityErrors.GetIdentityError(result.Errors);
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = error });
+                }
+                else
+                {
+                    var getuser = await _userManager.FindByEmailAsync(model.EmailId);
+                    var userModel = _mapper.Map<MasterMember>(model);
+                    // var userModel = new MasterMember();
+                    userModel.UserId = getuser.Id;
+                    userModel.EmailId = model.EmailId;
+
+
+                    await AddMember(userModel);
+                }
+
+                return Ok(new Response { Status = "Success", Message = "User created successfully!" });
             }
             else
             {
-                var getuser = await _userManager.FindByEmailAsync(model.EmailId);
-                var userModel = _mapper.Map<MasterMember>(model);
-                // var userModel = new MasterMember();
-                userModel.UserId = getuser.Id;
-                userModel.EmailId = model.EmailId;
-
-
-                await AddMember(userModel);
+                var error = ModelState.Values;
+                return BadRequest(
+                    new Response
+                    {
+                        Message = "",
+                        Status = "error"
+                    }
+                    );
             }
-
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+            
         }
 
         [Route("profile")]

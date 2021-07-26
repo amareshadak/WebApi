@@ -1,4 +1,4 @@
-﻿using Api.Data.Context;
+﻿using Api.Data;
 using Api.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +11,6 @@ namespace Api.Extensions
         {
             #region Other Service Dependency
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IBookService, BookService>();
             services.AddTransient<IMemberService, MemberService>();
             #endregion
 

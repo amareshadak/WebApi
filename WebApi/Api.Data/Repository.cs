@@ -1,11 +1,8 @@
-﻿using Api.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace Api.Service
+namespace Api.Data
 {
 
     public abstract class Repository<T> : IRepository<T> where T : class

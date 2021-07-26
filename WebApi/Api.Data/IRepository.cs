@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Api.Service
+namespace Api.Data
 {
     public interface IRepository<T> where T : class
     {

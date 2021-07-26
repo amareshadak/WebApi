@@ -1,4 +1,4 @@
-﻿using Api.Data.Context;
+﻿using Api.Data;
 using System;
 using System.Threading.Tasks;
 
@@ -8,18 +8,15 @@ namespace Api.Service
     {
         private readonly ApiContext _context;
         public IUserService User { get; }
-        public IBookService Book { get; }
         public IMemberService Member { get; }
         public UnitOfWork(
             ApiContext context,
-          IBookService bookService,
           IUserService userService,
           IMemberService memberService
             )
         {
             this._context = context;
             this.User = userService;
-            this.Book = bookService;
             this.Member = memberService;
         }
         public int Complete()

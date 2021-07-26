@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Data.Context
+namespace Api.Data
 {
     public class ApiContext : IdentityDbContext<ApplicationUser, ApplicationRole, long>
     {
@@ -10,7 +10,6 @@ namespace Api.Data.Context
         {
         }
 
-        public virtual DbSet<Book> Books { get; set; }
         public virtual DbSet<MasterMember> MasterMember { get; set; }
     }
 }
